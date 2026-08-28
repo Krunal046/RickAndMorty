@@ -1,8 +1,5 @@
 package com.example.rickandmorty.feature.character.domain.model
 
-import com.example.rickandmorty.feature.character.data.remote.dto.CharacterLocationDTO
-import com.example.rickandmorty.feature.character.data.remote.dto.CharacterOriginDTO
-
 data class CharacterModel(
     val id: Int,
     val name: String,
@@ -10,12 +7,10 @@ data class CharacterModel(
     val species: String,
     val type: String,
     val gender: String,
-    val origin: CharacterOriginDTO,
-    val location: CharacterLocationDTO,
+    val origin: CharacterOriginModel,
+    val location: CharacterLocationModel,
     val image: String,
     val episode: List<String>,
     val url: String,
     val created: String
 )
-
-

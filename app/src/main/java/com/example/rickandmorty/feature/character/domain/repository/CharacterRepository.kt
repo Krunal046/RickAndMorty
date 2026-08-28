@@ -1,18 +1,15 @@
 package com.example.rickandmorty.feature.character.domain.repository
 
-import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
-import com.example.rickandmorty.feature.character.data.remote.dto.CharacterInfoDTO
+import com.example.rickandmorty.core.common.Resource
+import com.example.rickandmorty.feature.character.domain.model.CharacterModel
+import com.example.rickandmorty.feature.character.domain.model.CharacterPageModel
 
 interface CharacterRepository {
 
-    suspend fun getCharacterList(): CharacterInfoDTO
+    suspend fun getCharacterList(): Resource<CharacterPageModel>
 
-    suspend fun getCharacterById(id: Int): CharacterDTO
+    suspend fun getCharacterById(id: Int): Resource<CharacterModel>
 
-    suspend fun getSelectedCharacterList(ids: String): List<CharacterDTO>
+    suspend fun getSelectedCharacterList(ids: String): Resource<List<CharacterModel>>
 
 }
-
-
-
-

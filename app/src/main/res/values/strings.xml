@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">RickAndMorty</string>
+
+    <string name="error_no_internet">No internet connection. Check your network and try again.</string>
+    <string name="error_timeout">The request took too long. Please try again.</string>
+    <string name="error_serialization">We couldn\'t read the server response.</string>
+    <string name="error_not_found">We couldn\'t find what you were looking for.</string>
+    <string name="error_server">The server is having trouble. Please try again later.</string>
+    <string name="error_unknown">Something went wrong. Please try again.</string>
 </resources>
