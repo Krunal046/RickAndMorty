@@ -7,4 +7,7 @@
     <string name="error_not_found">We couldn\'t find what you were looking for.</string>
     <string name="error_server">The server is having trouble. Please try again later.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
+
+    <string name="characters_empty">No characters to show yet.</string>
+    <string name="action_retry">Try again</string>
 </resources>
