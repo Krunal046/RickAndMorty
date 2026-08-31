@@ -3,6 +3,7 @@ package com.example.rickandmorty.feature.character.presentation
 import androidx.annotation.StringRes
 import com.example.rickandmorty.R
 import com.example.rickandmorty.core.common.DataError
+import com.example.rickandmorty.core.common.DataErrorException
 
 /**
  * Wording lives in the presentation layer so the data layer stays free of
@@ -20,3 +21,11 @@ fun DataError.toMessageRes(): Int = when (this) {
     }
     is DataError.Unknown -> R.string.error_unknown
 }
+
+/**
+ * Paging reports failures as a [Throwable]. Ours arrive wrapped in a [DataErrorException],
+ * so a paged load ends up on exactly the same strings as a plain call.
+ */
+@StringRes
+fun Throwable.toMessageRes(): Int =
+    (this as? DataErrorException)?.error?.toMessageRes() ?: R.string.error_unknown

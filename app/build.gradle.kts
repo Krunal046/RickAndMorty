@@ -74,6 +74,10 @@ dependencies {
     //kotlin serializition
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.converter.kotlinx.serialization)
+
+    //pagination
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
 }
 
 

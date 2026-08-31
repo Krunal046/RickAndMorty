@@ -3,11 +3,6 @@ package com.example.rickandmorty.feature.character.data.remote.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CharacterListDTO(
-    val results: List<CharacterDTO>
-)
-
-@Serializable
 data class CharacterInfoDTO(
     val info: Pagination,
     val results: List<CharacterDTO>
