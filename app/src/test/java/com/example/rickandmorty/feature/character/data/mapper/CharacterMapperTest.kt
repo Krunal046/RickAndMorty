@@ -1,6 +1,8 @@
 package com.example.rickandmorty.feature.character.data.mapper
 
 import com.example.rickandmorty.feature.character.data.characterDto
+import com.example.rickandmorty.feature.character.domain.model.CharacterStatus
+import com.example.rickandmorty.feature.character.domain.model.Gender
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -40,6 +42,18 @@ class CharacterMapperTest {
         assertEquals(7, entity.orderInQuery)
     }
 
+    /**
+     * The entity keeps the API's raw text so the cache mirrors the response; the enum is
+     * resolved on the way to the domain (spec §9).
+     */
+    @Test
+    fun `entity stores raw api text and the domain gets the enum`() {
+        val entity = characterDto(status = "unknown").toEntity(pageQuery = "character", orderInQuery = 0)
+
+        assertEquals("unknown", entity.status)
+        assertEquals(CharacterStatus.Unknown, entity.toDomain().status)
+    }
+
     @Test
     fun `entity to domain preserves every field the ui reads`() {
         val dto = characterDto(id = 4, name = "Beth Smith", status = "Alive")
@@ -48,8 +62,9 @@ class CharacterMapperTest {
 
         assertEquals(4, domain.id)
         assertEquals("Beth Smith", domain.name)
-        assertEquals("Alive", domain.status)
+        assertEquals(CharacterStatus.Alive, domain.status)
         assertEquals("Human", domain.species)
+        assertEquals(Gender.Male, domain.gender)
         assertEquals("Earth (C-137)", domain.origin.name)
         assertEquals("Citadel of Ricks", domain.location.name)
         assertEquals(listOf(1, 2), domain.episodeIds)

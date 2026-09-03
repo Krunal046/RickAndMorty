@@ -60,7 +60,7 @@ feature/<name>/
 | ID | Feature | Screen | Endpoint | Notes | Phase | Done |
 |---|---|---|---|---|---|---|
 | C1 | Character list with infinite scroll | S1 | `GET /character?page={n}` | The reference implementation every later list copies. Avatar via Coil, status dot, 20/page fixed by the API. | 2 | [x] |
-| C2 | Search by name + filter by status / species / gender | S2 (same screen as S1) | `GET /character/?name=&status=&species=&gender=` | ~300 ms debounce, `flatMapLatest` rebuilds the pager per query. Filters combine. 404 → empty state. | 3 | [ ] |
+| C2 | Search by name + filter by status / species / gender | S2 (same screen as S1) | `GET /character/?name=&status=&species=&gender=` | ~300 ms debounce, `flatMapLatest` rebuilds the pager per query. Filters combine. 404 → empty state. | 3 | [x] |
 | C3 | Character detail | S3 | `GET /character/{id}` | Reads `dao.observeById(id)`; a one-shot refresh upserts fresh data. Opens from cache offline. Origin & last location link to S7. | 4 | [ ] |
 | C4 | Episodes a character appears in | S3 | `episode[]` → `GET /episode/{ids}` | Ids parsed from URL tails (`url.substringAfterLast('/')`). Chips navigate to S5. | 4 | [ ] |
 
@@ -117,7 +117,7 @@ onto the active tab's back stack.
 | 0 | This document | [x] |
 | 1 | Foundation — Room, shared `remote_keys`, `core/ui` state composables, type-safe navigation + bottom bar, Coil, package restructure, per-feature DI | [x] |
 | 2 | C1 — character list, offline-first (X1, X2, X4, X6) | [x] |
-| 3 | C2 — search & filter | [ ] |
+| 3 | C2 — search & filter | [x] |
 | 4 | C3, C4 — character detail + episode data layer (X5) | [ ] |
 | 5 | X3 — favorites | [ ] |
 | 6 | E1–E4 — episodes | [ ] |

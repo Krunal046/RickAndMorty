@@ -23,6 +23,9 @@ interface CharacterDao {
     @Query("DELETE FROM characters WHERE pageQuery = :pageQuery")
     suspend fun clearForQuery(pageQuery: String)
 
+    @Query("DELETE FROM characters WHERE pageQuery IN (:pageQueries)")
+    suspend fun clearForQueries(pageQueries: List<String>)
+
     /** Highest position stored so far, so an appended page continues the ordering. */
     @Query("SELECT MAX(orderInQuery) FROM characters WHERE pageQuery = :pageQuery")
     suspend fun maxOrder(pageQuery: String): Int?

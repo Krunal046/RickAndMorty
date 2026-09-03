@@ -5,14 +5,17 @@ package com.example.rickandmorty.feature.character.domain.model
  *
  * `episodeIds` holds ids rather than the API's URLs: the id is what the episode endpoints
  * take, and parsing it once at the data boundary keeps URL handling out of the UI.
+ *
+ * `status` and `gender` are enums rather than the API's free text, so the UI switches on
+ * them exhaustively instead of matching strings.
  */
 data class CharacterModel(
     val id: Int,
     val name: String,
-    val status: String,
+    val status: CharacterStatus,
     val species: String,
     val type: String,
-    val gender: String,
+    val gender: Gender,
     val origin: CharacterOriginModel,
     val location: CharacterLocationModel,
     val image: String,

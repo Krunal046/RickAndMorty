@@ -13,6 +13,7 @@ import com.example.rickandmorty.feature.character.data.mapper.toDomain
 import com.example.rickandmorty.feature.character.data.paging.CharacterRemoteMediator
 import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
+import com.example.rickandmorty.feature.character.domain.model.CharacterQuery
 import com.example.rickandmorty.feature.character.domain.repository.CharacterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,8 +28,8 @@ class CharacterRepositoryImpl @Inject constructor(
     private val database: RickAndMortyDatabase
 ) : CharacterRepository {
 
-    override fun characterPaging(): Flow<PagingData<CharacterModel>> {
-        val pageQuery = PLAIN_LIST_QUERY
+    override fun characterPaging(query: CharacterQuery): Flow<PagingData<CharacterModel>> {
+        val pageQuery = query.cacheKey
 
         return Pager(
             config = PagingConfig(
@@ -43,7 +44,15 @@ class CharacterRepositoryImpl @Inject constructor(
                 pageQuery = pageQuery,
                 database = database,
                 characterDao = characterDao,
-                fetchPage = { page -> characterApi.getCharacterList(page) }
+                fetchPage = { page ->
+                    characterApi.getCharacterList(
+                        page = page,
+                        name = query.nameOrNull(),
+                        status = query.status?.apiValue,
+                        species = query.speciesOrNull(),
+                        gender = query.gender?.apiValue
+                    )
+                }
             ),
             // A fresh source per call: a PagingSource is single-use and Paging invalidates
             // and re-creates it whenever the table changes.
@@ -61,8 +70,5 @@ class CharacterRepositoryImpl @Inject constructor(
         /** The page size the Rick and Morty API serves; it is not configurable. */
         const val PAGE_SIZE = 20
         const val PREFETCH_DISTANCE = 5
-
-        /** Cache key for the unfiltered list. Phase 3 adds the filtered variants. */
-        const val PLAIN_LIST_QUERY = "character"
     }
 }

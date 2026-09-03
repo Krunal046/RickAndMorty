@@ -2,8 +2,10 @@ package com.example.rickandmorty.feature.character.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 
 /**
@@ -18,6 +20,7 @@ fun CharacterRoute(
     modifier: Modifier = Modifier,
     viewModel: CharacterViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val characters = viewModel.characters.collectAsLazyPagingItems()
 
     LaunchedEffect(viewModel, onCharacterClick) {
@@ -30,6 +33,7 @@ fun CharacterRoute(
     }
 
     CharacterScreen(
+        uiState = uiState,
         characters = characters,
         onEvent = viewModel::onEvent,
         modifier = modifier

@@ -31,6 +31,7 @@ import com.example.rickandmorty.R
 import com.example.rickandmorty.core.ui.PagedContent
 import com.example.rickandmorty.core.ui.pagingAppendFooter
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
+import com.example.rickandmorty.feature.character.domain.model.CharacterStatus
 
 /**
  * Stateless: everything it renders arrives as a parameter, and everything the user does
@@ -38,22 +39,35 @@ import com.example.rickandmorty.feature.character.domain.model.CharacterModel
  *
  * Loading, error and empty are not parameters either - [PagedContent] derives them from
  * `LazyPagingItems.loadState`, the single source for them.
+ *
+ * Search and filters live on this screen rather than a separate route: spec S2 is the same
+ * screen as S1.
  */
 @Composable
 fun CharacterScreen(
+    uiState: CharacterUiState,
     characters: LazyPagingItems<CharacterModel>,
     onEvent: (CharacterUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PagedContent(
-        items = characters,
-        emptyMessageRes = R.string.characters_empty,
-        modifier = modifier
-    ) {
-        CharacterList(
-            characters = characters,
-            onCharacterClick = { onEvent(CharacterUiEvent.CharacterClicked(it)) }
-        )
+    Column(modifier = modifier.fillMaxSize()) {
+        CharacterFilterPanel(state = uiState, onEvent = onEvent)
+
+        PagedContent(
+            items = characters,
+            // A search that found nothing reads differently from a list that is simply
+            // empty, and after spec §8 the first is by far the more common of the two.
+            emptyMessageRes = if (uiState.isSearching) {
+                R.string.characters_empty_search
+            } else {
+                R.string.characters_empty
+            }
+        ) {
+            CharacterList(
+                characters = characters,
+                onCharacterClick = { onEvent(CharacterUiEvent.CharacterClicked(it)) }
+            )
+        }
     }
 }
 
@@ -132,16 +146,16 @@ private fun CharacterRow(
 }
 
 /**
- * The API sends status as free text (`Alive`/`Dead`/`unknown`) with inconsistent casing,
- * so the comparison is case-insensitive and anything unrecognised falls back to the
- * neutral colour rather than being treated as a failure.
+ * Exhaustive over [CharacterStatus] now that the API's free text is parsed into an enum at
+ * the data boundary - adding a status would fail to compile here rather than silently
+ * rendering the neutral colour.
  */
 @Composable
-private fun StatusDot(status: String) {
-    val color = when (status.lowercase()) {
-        "alive" -> Color(0xFF4CAF50)
-        "dead" -> Color(0xFFE53935)
-        else -> MaterialTheme.colorScheme.outline
+private fun StatusDot(status: CharacterStatus) {
+    val color = when (status) {
+        CharacterStatus.Alive -> Color(0xFF4CAF50)
+        CharacterStatus.Dead -> Color(0xFFE53935)
+        CharacterStatus.Unknown -> MaterialTheme.colorScheme.outline
     }
 
     Box(

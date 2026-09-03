@@ -4,6 +4,8 @@ import com.example.rickandmorty.core.common.idsFromUrls
 import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
 import com.example.rickandmorty.feature.character.domain.model.CharacterLocationModel
+import com.example.rickandmorty.feature.character.domain.model.CharacterStatus
+import com.example.rickandmorty.feature.character.domain.model.Gender
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 import com.example.rickandmorty.feature.character.domain.model.CharacterOriginModel
 
@@ -37,10 +39,12 @@ fun CharacterDTO.toEntity(pageQuery: String, orderInQuery: Int): CharacterEntity
 fun CharacterEntity.toDomain(): CharacterModel = CharacterModel(
     id = id,
     name = name,
-    status = status,
+    // The entity keeps the API's raw text so the cache stays a faithful copy; the enum is
+    // resolved on the way to the domain.
+    status = CharacterStatus.fromApi(status),
     species = species,
     type = type,
-    gender = gender,
+    gender = Gender.fromApi(gender),
     origin = CharacterOriginModel(name = originName, url = originUrl),
     location = CharacterLocationModel(name = lastLocationName, url = lastLocationUrl),
     image = imageUrl,

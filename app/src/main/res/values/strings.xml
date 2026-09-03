@@ -9,6 +9,14 @@
     <string name="error_unknown">Something went wrong. Please try again.</string>
 
     <string name="characters_empty">No characters to show yet.</string>
+    <string name="characters_empty_search">No characters match your search.</string>
+    <string name="characters_search_hint">Search characters</string>
+    <string name="filter_status">Status</string>
+    <string name="filter_gender">Gender</string>
+    <string name="filter_species">Species</string>
+    <string name="action_filters">Filters</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="action_clear_filters">Clear filters</string>
     <string name="action_retry">Try again</string>
 
     <string name="tab_characters">Characters</string>

@@ -25,6 +25,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
+import retrofit2.HttpException
 import java.io.IOException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -184,6 +190,94 @@ class CharacterRemoteMediatorTest {
      * The offline guarantee: a refresh that fails must leave whatever was cached readable,
      * because the UI renders from the database and has nothing else to fall back on.
      */
+    private fun httpException(code: Int) = HttpException(
+        retrofit2.Response.error<Any>(
+            code,
+            """{"error":"There is nothing here"}""".toResponseBody("application/json".toMediaType())
+        )
+    )
+
+    /**
+     * Spec §8: the API answers a search with no matches with 404, not an empty list. That
+     * is an empty state, not a failure - a retry button in front of a user whose search
+     * simply had no hits would be wrong.
+     */
+    @Test
+    fun `a 404 on a filtered search is an empty result, not an error`() = runTest {
+        val mediator = mediator(pageQuery = "character:name=zzzzzz") {
+            throw httpException(404)
+        }
+
+        val result = mediator.load(LoadType.REFRESH, emptyState())
+
+        assertTrue(result is RemoteMediator.MediatorResult.Success)
+        assertTrue((result as RemoteMediator.MediatorResult.Success).endOfPaginationReached)
+        assertEquals(0, dao.countForQuery("character:name=zzzzzz"))
+    }
+
+    /** A search that stops matching must clear what the previous one left behind. */
+    @Test
+    fun `a 404 refresh clears the rows the previous search cached`() = runTest {
+        val query = "character:name=ric"
+        val found = mediator(pageQuery = query) {
+            characterPage(listOf(characterDto(id = 1)), next = null)
+        }
+        found.load(LoadType.REFRESH, emptyState())
+        assertEquals(1, dao.countForQuery(query))
+
+        val notFound = mediator(pageQuery = query) { throw httpException(404) }
+        notFound.load(LoadType.REFRESH, emptyState())
+
+        assertEquals(0, dao.countForQuery(query))
+    }
+
+    /** Only 404 is an empty result; a server fault is still a failure worth retrying. */
+    @Test
+    fun `a 500 is still an error`() = runTest {
+        val mediator = mediator { throw httpException(500) }
+
+        val result = mediator.load(LoadType.REFRESH, emptyState())
+
+        val error = (result as RemoteMediator.MediatorResult.Error).throwable
+        assertEquals(DataError.Http(500), (error as DataErrorException).error)
+    }
+
+    /**
+     * Every distinct search caches under its own key, so without a bound the table would
+     * grow for the lifetime of the install.
+     */
+    @Test
+    fun `only the most recent filtered searches are kept`() = runTest {
+        repeat(12) { index ->
+            mediator(pageQuery = "character:name=search$index") {
+                characterPage(listOf(characterDto(id = index + 1)), next = null)
+            }.load(LoadType.REFRESH, emptyState())
+        }
+
+        val surviving = (0 until 12).count { dao.countForQuery("character:name=search$it") > 0 }
+
+        assertEquals(10, surviving)
+        // The oldest went first.
+        assertEquals(0, dao.countForQuery("character:name=search0"))
+        assertEquals(1, dao.countForQuery("character:name=search11"))
+    }
+
+    /** The unfiltered list is the app's default screen and is never evicted. */
+    @Test
+    fun `the plain list survives the trim`() = runTest {
+        mediator(pageQuery = "character") {
+            characterPage(listOf(characterDto(id = 1)), next = null)
+        }.load(LoadType.REFRESH, emptyState())
+
+        repeat(12) { index ->
+            mediator(pageQuery = "character:name=search$index") {
+                characterPage(listOf(characterDto(id = index + 100)), next = null)
+            }.load(LoadType.REFRESH, emptyState())
+        }
+
+        assertEquals(1, dao.countForQuery("character"))
+    }
+
     @Test
     fun `a failed refresh leaves the cached rows in place`() = runTest {
         val ok = mediator { characterPage(listOf(characterDto(id = 1)), next = null) }
