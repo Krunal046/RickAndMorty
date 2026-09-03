@@ -1,8 +1,11 @@
 package com.example.rickandmorty.core.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.rickandmorty.feature.character.data.local.dao.CharacterDao
+import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 
 /**
  * The app's single source of truth. Screens read from here and only from here; the network
@@ -14,15 +17,21 @@ import androidx.room.TypeConverters
  */
 @Database(
     entities = [
-        RemoteKeyEntity::class
+        RemoteKeyEntity::class,
+        CharacterEntity::class
     ],
-    version = 1,
-    exportSchema = true
+    version = 2,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
 )
 @TypeConverters(Converters::class)
 abstract class RickAndMortyDatabase : RoomDatabase() {
 
     abstract fun remoteKeyDao(): RemoteKeyDao
+
+    abstract fun characterDao(): CharacterDao
 
     companion object {
         const val NAME = "rick_and_morty.db"

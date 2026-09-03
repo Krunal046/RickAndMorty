@@ -1,5 +1,7 @@
 package com.example.rickandmorty.feature.character.di
 
+import com.example.rickandmorty.core.database.RickAndMortyDatabase
+import com.example.rickandmorty.feature.character.data.local.dao.CharacterDao
 import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
 import com.example.rickandmorty.feature.character.data.repository.CharacterRepositoryImpl
 import com.example.rickandmorty.feature.character.domain.repository.CharacterRepository
@@ -30,5 +32,9 @@ abstract class CharacterModule {
         @Singleton
         fun provideCharacterApiService(retrofit: Retrofit): CharacterApiService =
             retrofit.create(CharacterApiService::class.java)
+
+        @Provides
+        fun provideCharacterDao(database: RickAndMortyDatabase): CharacterDao =
+            database.characterDao()
     }
 }
