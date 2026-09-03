@@ -1,4 +1,4 @@
-package com.example.rickandmorty.feature.character.presentation
+package com.example.rickandmorty.core.presentation
 
 import androidx.annotation.StringRes
 import com.example.rickandmorty.R

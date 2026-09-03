@@ -1,4 +1,4 @@
-package com.example.rickandmorty.feature.character.data.remote.mapper
+package com.example.rickandmorty.feature.character.data.mapper
 
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterLocationDTO

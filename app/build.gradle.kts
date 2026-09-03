@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -39,12 +40,25 @@ android {
         compose = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests {
+            // Room DAO tests run on the JVM under Robolectric and need Android resources.
+            isIncludeAndroidResources = true
+        }
+    }
+}
+
+room {
+    // Exported schemas are what Room migration tests diff against.
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -78,6 +92,29 @@ dependencies {
     //pagination
     implementation(libs.paging.runtime)
     implementation(libs.paging.compose)
+
+    //room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    implementation(libs.room.paging)
+    ksp(libs.room.compiler)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    //image loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    //unit test
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
+    testImplementation(libs.paging.testing)
+    testImplementation(libs.room.testing)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.robolectric)
 }
 
 

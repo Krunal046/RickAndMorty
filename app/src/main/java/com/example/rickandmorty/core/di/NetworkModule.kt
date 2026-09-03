@@ -1,7 +1,6 @@
-package com.example.rickandmorty.di
+package com.example.rickandmorty.core.di
 
 import com.example.rickandmorty.BuildConfig
-import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +14,10 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+/**
+ * The HTTP stack itself. Feature-specific Retrofit services are provided by that feature's
+ * own module, so this file does not grow an import from every feature in the app.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -65,13 +68,6 @@ object NetworkModule {
         .client(okHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
-
-    @Provides
-    @Singleton
-    fun provideCharacterApiService(
-        retrofit: Retrofit
-    ): CharacterApiService =
-        retrofit.create(CharacterApiService::class.java)
 
 }
 

@@ -1,4 +1,4 @@
-package com.example.rickandmorty.feature.character.data.remote.paging
+package com.example.rickandmorty.feature.character.data.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -6,7 +6,7 @@ import com.example.rickandmorty.core.common.DataErrorException
 import com.example.rickandmorty.core.common.Resource
 import com.example.rickandmorty.core.network.safeApiCall
 import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
-import com.example.rickandmorty.feature.character.data.remote.mapper.toDomain
+import com.example.rickandmorty.feature.character.data.mapper.toDomain
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 
 /**

@@ -10,4 +10,11 @@
 
     <string name="characters_empty">No characters to show yet.</string>
     <string name="action_retry">Try again</string>
+
+    <string name="tab_characters">Characters</string>
+    <string name="tab_episodes">Episodes</string>
+    <string name="tab_locations">Locations</string>
+    <string name="tab_favorites">Favorites</string>
+
+    <string name="screen_not_implemented">%1$s is not built yet.</string>
 </resources>

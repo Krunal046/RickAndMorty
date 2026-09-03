@@ -7,11 +7,9 @@ import androidx.paging.cachedIn
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 import com.example.rickandmorty.feature.character.domain.usecase.GetCharacterPagingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,19 +24,18 @@ class CharacterViewModel @Inject constructor(
     val characters: Flow<PagingData<CharacterModel>> =
         getCharacterPaging().cachedIn(viewModelScope)
 
-    private val _uiState = MutableStateFlow(CharacterUiState())
-    val uiState: StateFlow<CharacterUiState> = _uiState.asStateFlow()
+    /**
+     * Buffered so an effect emitted before the UI starts collecting - during a
+     * configuration change, say - is delivered rather than dropped.
+     */
+    private val _effects = Channel<CharacterUiEffect>(Channel.BUFFERED)
+    val effects: Flow<CharacterUiEffect> = _effects.receiveAsFlow()
 
     /** The single entry point for the UI. */
     fun onEvent(event: CharacterUiEvent) {
         when (event) {
-            is CharacterUiEvent.CharacterClicked -> _uiState.update {
-                it.copy(selectedCharacterId = event.characterId)
-            }
-
-            CharacterUiEvent.SelectionCleared -> _uiState.update {
-                it.copy(selectedCharacterId = null)
-            }
+            is CharacterUiEvent.CharacterClicked ->
+                _effects.trySend(CharacterUiEffect.NavigateToCharacterDetail(event.characterId))
         }
     }
 }

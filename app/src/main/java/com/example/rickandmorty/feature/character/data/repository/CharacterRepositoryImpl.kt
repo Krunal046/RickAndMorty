@@ -1,11 +1,11 @@
-package com.example.rickandmorty.feature.character.data.remote.repository
+package com.example.rickandmorty.feature.character.data.repository
 
 import androidx.paging.PagingSource
 import com.example.rickandmorty.core.common.Resource
 import com.example.rickandmorty.core.network.safeApiCall
 import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
-import com.example.rickandmorty.feature.character.data.remote.mapper.toDomain
-import com.example.rickandmorty.feature.character.data.remote.paging.CharacterPagingSource
+import com.example.rickandmorty.feature.character.data.mapper.toDomain
+import com.example.rickandmorty.feature.character.data.paging.CharacterPagingSource
 import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 import com.example.rickandmorty.feature.character.domain.repository.CharacterRepository
 import javax.inject.Inject

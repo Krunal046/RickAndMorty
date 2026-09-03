@@ -1,9 +1,8 @@
 package com.example.rickandmorty.feature.character.presentation
 
 /**
- * Every interaction that can reach the ViewModel — user taps, screen lifecycle, and any
- * work that follows from them (network, local DB). The UI never calls a specific
- * ViewModel method; it sends an event and waits for [CharacterUiState] to change.
+ * Every interaction that can reach the ViewModel. The UI never calls a specific ViewModel
+ * method; it sends an event and waits for state or an effect to come back.
  *
  * Loading, retrying and refreshing the list are absent on purpose: they are
  * `LazyPagingItems.retry()` / `refresh()`, which have to be called on the instance that
@@ -12,7 +11,4 @@ package com.example.rickandmorty.feature.character.presentation
 sealed interface CharacterUiEvent {
 
     data class CharacterClicked(val characterId: Int) : CharacterUiEvent
-
-    /** Detail closed — clears the selection. */
-    data object SelectionCleared : CharacterUiEvent
 }
