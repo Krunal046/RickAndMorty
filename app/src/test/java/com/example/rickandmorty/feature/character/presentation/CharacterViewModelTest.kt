@@ -36,8 +36,9 @@ class CharacterViewModelTest {
             return flowOf(PagingData.empty())
         }
 
-        override suspend fun getCharacterById(id: Int) = error("not used")
-        override suspend fun getSelectedCharacterList(ids: String) = error("not used")
+        override fun observeCharacter(id: Int) = error("not used")
+        override suspend fun refreshCharacter(id: Int) = error("not used")
+        override suspend fun getCharactersByIds(ids: List<Int>) = error("not used")
     }
 
     private val dispatcher = StandardTestDispatcher()

@@ -2,6 +2,7 @@ package com.example.rickandmorty.feature.character.data.remote
 
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterInfoDTO
+import kotlinx.serialization.json.JsonElement
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -30,6 +31,13 @@ interface CharacterApiService {
     @GET("character/{id}")
     suspend fun getCharacterById(@Path("id") id: Int): CharacterDTO
 
+    /**
+     * One or many characters - `character/1` or `character/1,2,3`.
+     *
+     * Raw [JsonElement] rather than `List<CharacterDTO>` because the API answers a single id
+     * with an object and several with an array (spec X5); `Json.decodeBatch` turns either
+     * into a list.
+     */
     @GET("character/{ids}")
-    suspend fun getSelectedCharacterList(@Path("ids") ids: String): List<CharacterDTO>
+    suspend fun getCharactersByIds(@Path("ids") ids: String): JsonElement
 }

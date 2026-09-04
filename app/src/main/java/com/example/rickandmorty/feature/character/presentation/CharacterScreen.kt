@@ -149,9 +149,11 @@ private fun CharacterRow(
  * Exhaustive over [CharacterStatus] now that the API's free text is parsed into an enum at
  * the data boundary - adding a status would fail to compile here rather than silently
  * rendering the neutral colour.
+ *
+ * Shared with the detail screen, which shows the same dot beside the same text.
  */
 @Composable
-private fun StatusDot(status: CharacterStatus) {
+internal fun StatusDot(status: CharacterStatus) {
     val color = when (status) {
         CharacterStatus.Alive -> Color(0xFF4CAF50)
         CharacterStatus.Dead -> Color(0xFFE53935)

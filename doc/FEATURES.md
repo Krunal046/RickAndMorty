@@ -49,7 +49,7 @@ feature/<name>/
 | X2 | Offline caching of paged lists | `RemoteMediator` + shared query-keyed `remote_keys` table | 1–2 | [x] |
 | X3 | Favorites — bookmark characters | Separate `character_favorites` table, joined against cached characters | 5 | [ ] |
 | X4 | Pull-to-refresh on any list | `PullToRefreshBox` → `LazyPagingItems.refresh()` | 2 | [x] |
-| X5 | Batch fetch of related items | `GET /character/{1,2,3}` and `/episode/{ids}` — **a single id returns an object, several return an array**; one shared helper handles both | 4 | [ ] |
+| X5 | Batch fetch of related items | `GET /character/{1,2,3}` and `/episode/{ids}` — **a single id returns an object, several return an array**; one shared helper handles both | 4 | [x] |
 | X6 | Loading / empty / error states | Shared `PagedContent` composable in `core/ui` encodes the decision table once | 1–2 | [x] |
 | X7 | Bottom-tab navigation | Type-safe `@Serializable` routes, 4 tabs with independent back stacks | 1 | [x] |
 
@@ -61,8 +61,8 @@ feature/<name>/
 |---|---|---|---|---|---|---|
 | C1 | Character list with infinite scroll | S1 | `GET /character?page={n}` | The reference implementation every later list copies. Avatar via Coil, status dot, 20/page fixed by the API. | 2 | [x] |
 | C2 | Search by name + filter by status / species / gender | S2 (same screen as S1) | `GET /character/?name=&status=&species=&gender=` | ~300 ms debounce, `flatMapLatest` rebuilds the pager per query. Filters combine. 404 → empty state. | 3 | [x] |
-| C3 | Character detail | S3 | `GET /character/{id}` | Reads `dao.observeById(id)`; a one-shot refresh upserts fresh data. Opens from cache offline. Origin & last location link to S7. | 4 | [ ] |
-| C4 | Episodes a character appears in | S3 | `episode[]` → `GET /episode/{ids}` | Ids parsed from URL tails (`url.substringAfterLast('/')`). Chips navigate to S5. | 4 | [ ] |
+| C3 | Character detail | S3 | `GET /character/{id}` | Reads `dao.observeById(id)`; a one-shot refresh upserts fresh data. Opens from cache offline. Origin & last location link to S7. | 4 | [x] |
+| C4 | Episodes a character appears in | S3 | `episode[]` → `GET /episode/{ids}` | Ids parsed from URL tails (`url.substringAfterLast('/')`). Chips navigate to S5. | 4 | [x] |
 
 ## Episodes (`E`)
 
@@ -118,7 +118,7 @@ onto the active tab's back stack.
 | 1 | Foundation — Room, shared `remote_keys`, `core/ui` state composables, type-safe navigation + bottom bar, Coil, package restructure, per-feature DI | [x] |
 | 2 | C1 — character list, offline-first (X1, X2, X4, X6) | [x] |
 | 3 | C2 — search & filter | [x] |
-| 4 | C3, C4 — character detail + episode data layer (X5) | [ ] |
+| 4 | C3, C4 — character detail + episode data layer (X5) | [x] |
 | 5 | X3 — favorites | [ ] |
 | 6 | E1–E4 — episodes | [ ] |
 | 7 | L1–L4 — locations | [ ] |

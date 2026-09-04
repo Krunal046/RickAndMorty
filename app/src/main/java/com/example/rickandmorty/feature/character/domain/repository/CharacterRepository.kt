@@ -18,7 +18,23 @@ interface CharacterRepository {
      */
     fun characterPaging(query: CharacterQuery = CharacterQuery()): Flow<PagingData<CharacterModel>>
 
-    suspend fun getCharacterById(id: Int): Resource<CharacterModel>
+    /**
+     * The cached character, or null while nothing has been cached for [id] yet.
+     *
+     * The detail screen renders this and nothing else, so it opens from the cache offline.
+     * There is deliberately no call that hands the network's answer straight to the UI:
+     * [refreshCharacter] writes to the database and this flow reports the result.
+     */
+    fun observeCharacter(id: Int): Flow<CharacterModel?>
 
-    suspend fun getSelectedCharacterList(ids: String): Resource<List<CharacterModel>>
+    /** Fetches `/character/{id}` and writes it to the cache. */
+    suspend fun refreshCharacter(id: Int): Resource<Unit>
+
+    /**
+     * Several characters in one call, for an episode's cast and a location's residents.
+     *
+     * Not cached: those are grids of a relation the owning screen already refreshes, and
+     * they have no list identity of their own to cache under.
+     */
+    suspend fun getCharactersByIds(ids: List<Int>): Resource<List<CharacterModel>>
 }

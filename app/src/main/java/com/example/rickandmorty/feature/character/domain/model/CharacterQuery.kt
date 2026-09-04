@@ -44,5 +44,17 @@ data class CharacterQuery(
 
     companion object {
         const val RESOURCE = "character"
+
+        /**
+         * The cache a character opened on its own is kept under (spec C3), as opposed to
+         * one that arrived as part of a list.
+         *
+         * It exists so a character reached from a filtered search still opens offline after
+         * that search has been evicted, and so a detail opened from a deep link is cached at
+         * all. Being absent from `remote_keys` - it is not a paged list and has no cursor -
+         * it can never be returned by `RemoteKeyDao.staleFilteredKeys`, so the eviction that
+         * trims old searches cannot reach it.
+         */
+        const val DETAIL = "$RESOURCE:detail"
     }
 }

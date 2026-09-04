@@ -1,5 +1,6 @@
 package com.example.rickandmorty.feature.character.data.mapper
 
+import com.example.rickandmorty.core.common.idFromUrlOrNull
 import com.example.rickandmorty.core.common.idsFromUrls
 import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
@@ -45,8 +46,13 @@ fun CharacterEntity.toDomain(): CharacterModel = CharacterModel(
     species = species,
     type = type,
     gender = Gender.fromApi(gender),
-    origin = CharacterOriginModel(name = originName, url = originUrl),
-    location = CharacterLocationModel(name = lastLocationName, url = lastLocationUrl),
+    // The entity keeps the API's URLs; the id the detail screen needs to open a location
+    // is read off them here, so no URL reaches the UI.
+    origin = CharacterOriginModel(name = originName, id = originUrl.idFromUrlOrNull()),
+    location = CharacterLocationModel(
+        name = lastLocationName,
+        id = lastLocationUrl.idFromUrlOrNull()
+    ),
     image = imageUrl,
     episodeIds = episodeIds,
     url = url,

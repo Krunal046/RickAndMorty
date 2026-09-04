@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.rickandmorty.core.ui.PlaceholderScreen
+import com.example.rickandmorty.feature.character.presentation.CharacterDetailRoute
 import com.example.rickandmorty.feature.character.presentation.CharacterRoute
 
 /**
@@ -34,9 +35,14 @@ fun RickAndMortyNavHost(
             CharacterRoute(onCharacterClick = toCharacterDetail)
         }
 
-        composable<Route.CharacterDetail> { entry ->
-            val characterId = entry.toRoute<Route.CharacterDetail>().characterId
-            PlaceholderScreen(title = "Character #$characterId")
+        // Declared once and pushed from every tab; the id travels in the route itself, so
+        // the screen's ViewModel reads it rather than taking it as a parameter.
+        composable<Route.CharacterDetail> {
+            CharacterDetailRoute(
+                onBackClick = { navController.navigateUp() },
+                onEpisodeClick = { navController.navigate(Route.EpisodeDetail(it)) },
+                onLocationClick = { navController.navigate(Route.LocationDetail(it)) }
+            )
         }
 
         // ---- Episodes tab ---------------------------------------------------------

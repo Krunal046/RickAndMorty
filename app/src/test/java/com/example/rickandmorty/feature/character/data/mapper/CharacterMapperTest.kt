@@ -4,6 +4,7 @@ import com.example.rickandmorty.feature.character.data.characterDto
 import com.example.rickandmorty.feature.character.domain.model.CharacterStatus
 import com.example.rickandmorty.feature.character.domain.model.Gender
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class CharacterMapperTest {
@@ -68,5 +69,30 @@ class CharacterMapperTest {
         assertEquals("Earth (C-137)", domain.origin.name)
         assertEquals("Citadel of Ricks", domain.location.name)
         assertEquals(listOf(1, 2), domain.episodeIds)
+    }
+
+    /** Spec C3: origin and last location link to the location detail, so the UI needs ids. */
+    @Test
+    fun `parses the origin and location ids off their urls`() {
+        val domain = characterDto().toEntity(pageQuery = "character", orderInQuery = 0).toDomain()
+
+        assertEquals(1, domain.origin.id)
+        assertEquals(3, domain.location.id)
+    }
+
+    /**
+     * An `unknown` origin arrives with an empty url. There is no location to open, and the
+     * detail screen renders the name without a link rather than a row that does nothing.
+     */
+    @Test
+    fun `an origin with no url has no id to navigate to`() {
+        val dto = characterDto().let {
+            it.copy(origin = it.origin.copy(name = "unknown", url = ""))
+        }
+
+        val domain = dto.toEntity(pageQuery = "character", orderInQuery = 0).toDomain()
+
+        assertEquals("unknown", domain.origin.name)
+        assertNull(domain.origin.id)
     }
 }

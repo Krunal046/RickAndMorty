@@ -39,4 +39,12 @@ interface CharacterDao {
      */
     @Query("SELECT * FROM characters WHERE id = :id LIMIT 1")
     fun observeById(id: Int): Flow<CharacterEntity?>
+
+    /**
+     * Every cached copy of one character - one row per list that loaded it, plus the detail
+     * row. A detail refresh rewrites all of them together so that the copy [observeById]
+     * happens to pick cannot be the stale one.
+     */
+    @Query("SELECT * FROM characters WHERE id = :id")
+    suspend fun rowsForId(id: Int): List<CharacterEntity>
 }

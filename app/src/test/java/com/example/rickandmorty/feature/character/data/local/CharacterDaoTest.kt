@@ -3,16 +3,19 @@ package com.example.rickandmorty.feature.character.data.local
 import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.example.rickandmorty.core.database.RemoteKeyEntity
 import com.example.rickandmorty.core.database.RickAndMortyDatabase
 import com.example.rickandmorty.feature.character.data.characterDto
 import com.example.rickandmorty.feature.character.data.local.dao.CharacterDao
 import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 import com.example.rickandmorty.feature.character.data.mapper.toEntity
+import com.example.rickandmorty.feature.character.domain.model.CharacterQuery
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,5 +118,43 @@ class CharacterDaoTest {
     @Test
     fun `observeById emits null for a character that was never cached`() = runTest {
         assertNull(dao.observeById(999).first())
+    }
+
+    /** What a detail refresh reads before rewriting every copy in place. */
+    @Test
+    fun `rowsForId returns one row per list that cached the character`() = runTest {
+        dao.upsertAll(entities("character", listOf(1)))
+        dao.upsertAll(entities("character:name=rick", listOf(1)))
+        dao.upsertAll(entities(CharacterQuery.DETAIL, listOf(1)))
+
+        assertEquals(
+            listOf("character", "character:name=rick", CharacterQuery.DETAIL).sorted(),
+            dao.rowsForId(1).map(CharacterEntity::pageQuery).sorted()
+        )
+    }
+
+    @Test
+    fun `rowsForId is empty for a character that was never cached`() = runTest {
+        assertTrue(dao.rowsForId(999).isEmpty())
+    }
+
+    /**
+     * The detail cache has no cursor and is never written to `remote_keys`, so the eviction
+     * that trims old searches cannot see it - which is what lets a character opened from a
+     * search still open offline after that search has been evicted.
+     */
+    @Test
+    fun `trimming stale searches cannot reach the detail cache`() = runTest {
+        dao.upsertAll(entities("character:name=rick", listOf(1)))
+        dao.upsertAll(entities(CharacterQuery.DETAIL, listOf(1)))
+        database.remoteKeyDao().upsert(
+            RemoteKeyEntity(queryKey = "character:name=rick", nextPage = null, lastUpdated = 1L)
+        )
+
+        val stale = database.remoteKeyDao().staleFilteredKeys(CharacterQuery.RESOURCE, keep = 0)
+        dao.clearForQueries(stale)
+
+        assertEquals(listOf("character:name=rick"), stale)
+        assertEquals(1, dao.countForQuery(CharacterQuery.DETAIL))
     }
 }

@@ -19,6 +19,16 @@
     <string name="action_clear_filters">Clear filters</string>
     <string name="action_retry">Try again</string>
 
+    <string name="character_detail_title">Character</string>
+    <string name="detail_gender">Gender</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_origin">Origin</string>
+    <string name="detail_last_location">Last known location</string>
+    <string name="detail_episodes">Episodes (%1$d)</string>
+    <string name="detail_episodes_empty">This character isn\'t in any episodes.</string>
+    <string name="detail_value_unknown">Unknown</string>
+    <string name="action_back">Back</string>
+
     <string name="tab_characters">Characters</string>
     <string name="tab_episodes">Episodes</string>
     <string name="tab_locations">Locations</string>
