@@ -59,9 +59,15 @@ class FavoritesViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    /** Without this the tab would flash "no favorites" before Room had answered. */
+    /**
+     * Without this the tab would flash "no favorites" before Room had answered.
+     *
+     * Deliberately not a `runTest`: that would drain the scheduler first, running the
+     * collector `init` queued on the main dispatcher and letting Room's first emission
+     * land before the assertion. The state under test is the one held before it does.
+     */
     @Test
-    fun `starts loading rather than empty`() = runTest(dispatcher) {
+    fun `starts loading rather than empty`() {
         assertTrue(viewModel.uiState.value.isLoading)
         assertFalse(viewModel.uiState.value.isEmpty)
     }
