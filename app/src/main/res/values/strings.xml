@@ -1,3 +1,64 @@
 <resources>
     <string name="app_name">RickAndMorty</string>
+
+    <string name="error_no_internet">No internet connection. Check your network and try again.</string>
+    <string name="error_timeout">The request took too long. Please try again.</string>
+    <string name="error_serialization">We couldn\'t read the server response.</string>
+    <string name="error_not_found">We couldn\'t find what you were looking for.</string>
+    <string name="error_server">The server is having trouble. Please try again later.</string>
+    <string name="error_unknown">Something went wrong. Please try again.</string>
+
+    <string name="characters_empty">No characters to show yet.</string>
+    <string name="characters_empty_search">No characters match your search.</string>
+    <string name="characters_search_hint">Search characters</string>
+    <string name="filter_status">Status</string>
+    <string name="filter_gender">Gender</string>
+    <string name="filter_species">Species</string>
+    <string name="action_filters">Filters</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="action_retry">Try again</string>
+
+    <string name="character_detail_title">Character</string>
+    <string name="detail_gender">Gender</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_origin">Origin</string>
+    <string name="detail_last_location">Last known location</string>
+    <string name="detail_episodes">Episodes (%1$d)</string>
+    <string name="detail_episodes_empty">This character isn\'t in any episodes.</string>
+    <string name="detail_value_unknown">Unknown</string>
+    <string name="action_back">Back</string>
+    <string name="action_favorite">Add to favorites</string>
+    <string name="action_unfavorite">Remove from favorites</string>
+
+    <string name="episodes_empty">No episodes to show yet.</string>
+    <string name="episodes_empty_search">No episodes match your search.</string>
+    <string name="episodes_search_hint">Search by name or code</string>
+    <string name="episodes_season">Season %1$d</string>
+    <string name="episodes_season_unknown">Other episodes</string>
+
+    <string name="episode_detail_title">Episode</string>
+    <string name="episode_detail_air_date">Air date</string>
+    <string name="episode_detail_season">Season</string>
+    <string name="episode_detail_cast">Cast (%1$d)</string>
+    <string name="episode_detail_cast_empty">No characters listed for this episode.</string>
+
+    <string name="locations_empty">No locations to show yet.</string>
+    <string name="locations_empty_search">No locations match your search.</string>
+    <string name="locations_search_hint">Search locations</string>
+    <string name="filter_type">Type</string>
+    <string name="filter_dimension">Dimension</string>
+
+    <string name="location_detail_title">Location</string>
+    <string name="location_detail_dimension">Dimension</string>
+    <string name="location_detail_residents">Residents (%1$d)</string>
+    <string name="location_detail_residents_empty">Nobody is listed as living here.</string>
+
+    <string name="favorites_empty">No favorites yet. Tap the heart on a character to keep it here.</string>
+
+    <string name="tab_characters">Characters</string>
+    <string name="tab_episodes">Episodes</string>
+    <string name="tab_locations">Locations</string>
+    <string name="tab_favorites">Favorites</string>
+
 </resources>
