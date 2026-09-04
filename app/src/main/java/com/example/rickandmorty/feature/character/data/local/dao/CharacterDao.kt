@@ -41,6 +41,17 @@ interface CharacterDao {
     fun observeById(id: Int): Flow<CharacterEntity?>
 
     /**
+     * The characters behind an episode's cast or a location's residents, read from the cache
+     * and only from it.
+     *
+     * `GROUP BY id` collapses the copies a character keeps - one per list that loaded it,
+     * plus the detail and pinned copies - so a character appears once however many lists
+     * have seen it. Ordered by id, which is the order the owning resource lists them in.
+     */
+    @Query("SELECT * FROM characters WHERE id IN (:ids) GROUP BY id ORDER BY id ASC")
+    fun observeByIds(ids: List<Int>): Flow<List<CharacterEntity>>
+
+    /**
      * Every cached copy of one character - one row per list that loaded it, plus the detail
      * row. A detail refresh rewrites all of them together so that the copy [observeById]
      * happens to pick cannot be the stale one.

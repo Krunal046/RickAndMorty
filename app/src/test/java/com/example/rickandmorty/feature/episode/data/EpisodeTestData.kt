@@ -1,6 +1,8 @@
 package com.example.rickandmorty.feature.episode.data
 
+import com.example.rickandmorty.feature.character.data.remote.dto.Pagination
 import com.example.rickandmorty.feature.episode.data.remote.dto.EpisodeDTO
+import com.example.rickandmorty.feature.episode.data.remote.dto.EpisodeInfoDTO
 
 fun episodeDto(
     id: Int = 1,
@@ -32,3 +34,12 @@ fun episodeJson(id: Int = 1, name: String = "Pilot", code: String = "S01E01") = 
       "created": "2017-11-10T12:56:33.798Z"
     }
 """.trimIndent()
+
+/** [next] null is how the API says there are no more pages. */
+fun episodePage(
+    episodes: List<EpisodeDTO>,
+    next: String? = null
+) = EpisodeInfoDTO(
+    info = Pagination(count = episodes.size, pages = 1, next = next, prev = null),
+    results = episodes
+)

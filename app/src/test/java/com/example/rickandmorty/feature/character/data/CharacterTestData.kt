@@ -43,3 +43,27 @@ fun characterPage(
     info = Pagination(count = characters.size, pages = 1, next = next, prev = null),
     results = characters
 )
+
+/** The API's own JSON for one character, as the batch endpoint sends it. */
+fun characterJson(id: Int = 1, name: String = "Rick Sanchez", status: String = "Alive") = """
+    {
+      "id": $id,
+      "name": "$name",
+      "status": "$status",
+      "species": "Human",
+      "type": "",
+      "gender": "Male",
+      "origin": {
+        "name": "Earth (C-137)",
+        "url": "https://rickandmortyapi.com/api/location/1"
+      },
+      "location": {
+        "name": "Citadel of Ricks",
+        "url": "https://rickandmortyapi.com/api/location/3"
+      },
+      "image": "https://rickandmortyapi.com/api/character/avatar/$id.jpeg",
+      "episode": ["https://rickandmortyapi.com/api/episode/1"],
+      "url": "https://rickandmortyapi.com/api/character/$id",
+      "created": "2017-11-04T18:48:46.250Z"
+    }
+""".trimIndent()

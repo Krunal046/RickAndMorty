@@ -4,11 +4,15 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.rickandmorty.core.common.Resource
 import com.example.rickandmorty.core.database.RickAndMortyDatabase
+import com.example.rickandmorty.feature.episode.data.episodeDto
 import com.example.rickandmorty.feature.episode.data.episodeJson
 import com.example.rickandmorty.feature.episode.data.local.dao.EpisodeDao
-import com.example.rickandmorty.feature.episode.data.local.entity.EpisodeEntity
+import com.example.rickandmorty.feature.episode.data.mapper.toEntity
 import com.example.rickandmorty.feature.episode.data.remote.EpisodeApiService
+import com.example.rickandmorty.feature.episode.data.remote.dto.EpisodeDTO
+import com.example.rickandmorty.feature.episode.data.remote.dto.EpisodeInfoDTO
 import com.example.rickandmorty.feature.episode.domain.model.EpisodeModel
+import com.example.rickandmorty.feature.episode.domain.model.EpisodeQuery
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -27,8 +31,20 @@ class EpisodeRepositoryImplTest {
 
     private class FakeApi : EpisodeApiService {
         var response: String = "[]"
+        var detail: EpisodeDTO = episodeDto(id = 1, name = "Pilot")
         var failure: Throwable? = null
         val requestedPaths = mutableListOf<String>()
+
+        override suspend fun getEpisodeList(
+            page: Int,
+            name: String?,
+            episode: String?
+        ): EpisodeInfoDTO = error("not used")
+
+        override suspend fun getEpisodeById(id: Int): EpisodeDTO {
+            failure?.let { throw it }
+            return detail
+        }
 
         override suspend fun getEpisodesByIds(ids: String): JsonElement {
             requestedPaths += ids
@@ -53,6 +69,7 @@ class EpisodeRepositoryImplTest {
         repository = EpisodeRepositoryImpl(
             episodeApi = api,
             episodeDao = dao,
+            database = database,
             json = Json { ignoreUnknownKeys = true }
         )
     }
@@ -102,7 +119,7 @@ class EpisodeRepositoryImplTest {
             listOf("Pilot", "Lawnmower Dog"),
             repository.observeEpisodes(listOf(1, 2)).first().map(EpisodeModel::name)
         )
-        assertEquals(2, dao.countForQuery(EpisodeEntity.BY_ID_QUERY))
+        assertEquals(2, dao.countForQuery(EpisodeQuery.BY_ID))
     }
 
     @Test
@@ -120,5 +137,75 @@ class EpisodeRepositoryImplTest {
     @Test
     fun `observing no ids emits an empty list without hitting the database`() = runTest {
         assertTrue(repository.observeEpisodes(emptyList()).first().isEmpty())
+    }
+
+    /**
+     * Spec E2, and the subtle half of it. An episode has one row per list that loaded it,
+     * each carrying that list's position, so a detail refresh has to rewrite all of them:
+     * writing a single row would either reorder a list or leave the copy `observeById`
+     * happens to return stale.
+     */
+    @Test
+    fun `a detail refresh rewrites every cached copy in place`() = runTest {
+        dao.upsertAll(
+            listOf(
+                episodeDto(id = 1, name = "Stale").toEntity(EpisodeQuery.RESOURCE, orderInQuery = 4),
+                episodeDto(id = 1, name = "Stale").toEntity("episode:name=pilot", orderInQuery = 0)
+            )
+        )
+        api.detail = episodeDto(id = 1, name = "Pilot")
+
+        repository.refreshEpisode(1)
+
+        val rows = dao.rowsForId(1)
+        // Every copy carries the fresh name...
+        assertEquals(listOf("Pilot", "Pilot", "Pilot"), rows.map { it.name })
+        // ...and none of them lost its place in the list it belongs to.
+        assertEquals(
+            4,
+            rows.first { it.pageQuery == EpisodeQuery.RESOURCE }.orderInQuery
+        )
+        assertEquals(
+            0,
+            rows.first { it.pageQuery == "episode:name=pilot" }.orderInQuery
+        )
+    }
+
+    /**
+     * The detail row exists so an episode reached from a character's chips still opens after
+     * the search that cached it has been evicted.
+     */
+    @Test
+    fun `a detail refresh caches an episode no list has seen`() = runTest {
+        api.detail = episodeDto(id = 1, name = "Pilot")
+
+        repository.refreshEpisode(1)
+
+        assertEquals("Pilot", repository.observeEpisode(1).first()?.name)
+        assertEquals(1, dao.countForQuery(EpisodeQuery.DETAIL))
+    }
+
+    /** Refreshing twice must not leave two detail rows behind. */
+    @Test
+    fun `refreshing the detail twice keeps one detail row`() = runTest {
+        api.detail = episodeDto(id = 1, name = "Pilot")
+
+        repository.refreshEpisode(1)
+        repository.refreshEpisode(1)
+
+        assertEquals(1, dao.countForQuery(EpisodeQuery.DETAIL))
+    }
+
+    /** The offline rule: a failed refresh leaves whatever was cached readable. */
+    @Test
+    fun `a failed detail refresh leaves the cached episode on screen`() = runTest {
+        api.detail = episodeDto(id = 1, name = "Pilot")
+        repository.refreshEpisode(1)
+
+        api.failure = IOException("offline")
+        val result = repository.refreshEpisode(1)
+
+        assertTrue(result is Resource.Error)
+        assertEquals("Pilot", repository.observeEpisode(1).first()?.name)
     }
 }

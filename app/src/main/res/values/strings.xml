@@ -31,6 +31,18 @@
     <string name="action_favorite">Add to favorites</string>
     <string name="action_unfavorite">Remove from favorites</string>
 
+    <string name="episodes_empty">No episodes to show yet.</string>
+    <string name="episodes_empty_search">No episodes match your search.</string>
+    <string name="episodes_search_hint">Search by name or code</string>
+    <string name="episodes_season">Season %1$d</string>
+    <string name="episodes_season_unknown">Other episodes</string>
+
+    <string name="episode_detail_title">Episode</string>
+    <string name="episode_detail_air_date">Air date</string>
+    <string name="episode_detail_season">Season</string>
+    <string name="episode_detail_cast">Cast (%1$d)</string>
+    <string name="episode_detail_cast_empty">No characters listed for this episode.</string>
+
     <string name="favorites_empty">No favorites yet. Tap the heart on a character to keep it here.</string>
 
     <string name="tab_characters">Characters</string>

@@ -67,5 +67,17 @@ data class CharacterQuery(
          * never written to `remote_keys`, so neither can reach it.
          */
         const val FAVORITE = "$RESOURCE:favorite"
+
+        /**
+         * The cache the batch endpoint writes to, holding characters pulled in by id for an
+         * episode's cast (spec E4) and a location's residents (L4).
+         *
+         * A grid of a relation has no list identity of its own to cache under, but it still
+         * has to render offline - the app reads the database and only the database - so the
+         * characters land in one shared bucket keyed by id, exactly as episodes do under
+         * `EpisodeQuery.BY_ID`. Like [DETAIL] and [FAVORITE] it is never written to
+         * `remote_keys`, so the eviction that trims old searches cannot reach it.
+         */
+        const val BY_ID = "$RESOURCE:byId"
     }
 }

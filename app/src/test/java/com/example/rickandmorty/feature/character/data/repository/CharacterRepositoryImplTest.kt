@@ -5,12 +5,14 @@ import androidx.test.core.app.ApplicationProvider
 import com.example.rickandmorty.core.common.Resource
 import com.example.rickandmorty.core.database.RickAndMortyDatabase
 import com.example.rickandmorty.feature.character.data.characterDto
+import com.example.rickandmorty.feature.character.data.characterJson
 import com.example.rickandmorty.feature.character.data.local.dao.CharacterDao
 import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 import com.example.rickandmorty.feature.character.data.mapper.toEntity
 import com.example.rickandmorty.feature.character.data.remote.CharacterApiService
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterDTO
 import com.example.rickandmorty.feature.character.data.remote.dto.CharacterInfoDTO
+import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 import com.example.rickandmorty.feature.character.domain.model.CharacterQuery
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -36,6 +38,7 @@ class CharacterRepositoryImplTest {
     private class FakeApi : CharacterApiService {
         var character: CharacterDTO = characterDto(id = 1, name = "Rick Sanchez")
         var failure: Throwable? = null
+        var batchResponse: String = "[]"
         val batchPaths = mutableListOf<String>()
 
         override suspend fun getCharacterList(
@@ -54,7 +57,7 @@ class CharacterRepositoryImplTest {
         override suspend fun getCharactersByIds(ids: String): JsonElement {
             batchPaths += ids
             failure?.let { throw it }
-            return Json.parseToJsonElement("[]")
+            return Json.parseToJsonElement(batchResponse)
         }
     }
 
@@ -141,16 +144,62 @@ class CharacterRepositoryImplTest {
      */
     @Test
     fun `an empty batch request never touches the network`() = runTest {
-        val result = repository.getCharactersByIds(emptyList())
+        val result = repository.refreshCharacters(emptyList())
 
-        assertTrue(result is Resource.Success && result.data.isEmpty())
+        assertTrue(result is Resource.Success)
         assertTrue(api.batchPaths.isEmpty())
     }
 
     @Test
     fun `a batch request joins the ids into one path`() = runTest {
-        repository.getCharactersByIds(listOf(1, 2, 3))
+        repository.refreshCharacters(listOf(1, 2, 3))
 
         assertEquals(listOf("1,2,3"), api.batchPaths)
+    }
+
+    /**
+     * Spec E4 reads its cast from the database like everything else, so the batch has to
+     * write what it fetched rather than hand it back to the caller.
+     */
+    @Test
+    fun `a batch request caches what it fetched`() = runTest {
+        api.batchResponse = "[${characterJson(id = 1, name = "Rick Sanchez")}]"
+
+        repository.refreshCharacters(listOf(1))
+
+        assertEquals(
+            listOf("Rick Sanchez"),
+            repository.observeCharactersByIds(listOf(1)).first().map(CharacterModel::name)
+        )
+        assertEquals(1, dao.countForQuery(CharacterQuery.BY_ID))
+    }
+
+    /** The point of caching it: the grid still renders once the network is gone. */
+    @Test
+    fun `a failed batch leaves the cached cast on screen`() = runTest {
+        api.batchResponse = "[${characterJson(id = 1, name = "Rick Sanchez")}]"
+        repository.refreshCharacters(listOf(1))
+
+        api.failure = IOException("offline")
+        val result = repository.refreshCharacters(listOf(1))
+
+        assertTrue(result is Resource.Error)
+        assertEquals(1, repository.observeCharactersByIds(listOf(1)).first().size)
+    }
+
+    /**
+     * A character cached by a list and by a cast is one character, not two: the copies are
+     * per list, and a grid that showed a duplicate would be showing the same person twice.
+     */
+    @Test
+    fun `a character cached by both a list and a batch appears once`() = runTest {
+        dao.upsertAll(
+            listOf(characterDto(id = 1).toEntity(pageQuery = "character", orderInQuery = 0))
+        )
+        api.batchResponse = "[${characterJson(id = 1)}]"
+
+        repository.refreshCharacters(listOf(1))
+
+        assertEquals(1, repository.observeCharactersByIds(listOf(1)).first().size)
     }
 }

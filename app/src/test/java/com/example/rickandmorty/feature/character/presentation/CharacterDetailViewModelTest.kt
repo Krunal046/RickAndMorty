@@ -14,6 +14,7 @@ import com.example.rickandmorty.feature.character.domain.repository.CharacterRep
 import com.example.rickandmorty.feature.character.domain.usecase.ObserveCharacterUseCase
 import com.example.rickandmorty.feature.character.domain.usecase.RefreshCharacterUseCase
 import com.example.rickandmorty.feature.episode.domain.model.EpisodeModel
+import com.example.rickandmorty.feature.episode.domain.model.EpisodeQuery
 import com.example.rickandmorty.feature.episode.domain.repository.EpisodeRepository
 import com.example.rickandmorty.feature.episode.domain.usecase.GetEpisodesByIdsUseCase
 import com.example.rickandmorty.feature.episode.domain.usecase.RefreshEpisodesUseCase
@@ -61,7 +62,9 @@ class CharacterDetailViewModelTest {
             return refreshResult
         }
 
-        override suspend fun getCharactersByIds(ids: List<Int>) = error("not used")
+        override fun observeCharactersByIds(ids: List<Int>) = error("not used")
+
+        override suspend fun refreshCharacters(ids: List<Int>) = error("not used")
     }
 
     private class FakeEpisodeRepository : EpisodeRepository {
@@ -75,6 +78,12 @@ class CharacterDetailViewModelTest {
             refreshedIds += ids
             return refreshResult
         }
+
+        override fun episodePaging(query: EpisodeQuery) = error("not used")
+
+        override fun observeEpisode(id: Int) = error("not used")
+
+        override suspend fun refreshEpisode(id: Int) = error("not used")
     }
 
     private class FakeFavoriteRepository : FavoriteRepository {

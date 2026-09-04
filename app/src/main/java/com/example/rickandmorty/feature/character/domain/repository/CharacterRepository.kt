@@ -31,10 +31,16 @@ interface CharacterRepository {
     suspend fun refreshCharacter(id: Int): Resource<Unit>
 
     /**
-     * Several characters in one call, for an episode's cast and a location's residents.
+     * The cached characters for [ids] - an episode's cast (spec E4), a location's residents
+     * (L4). Emits what the database holds, possibly nothing or only some of them, and emits
+     * again as [refreshCharacters] fills it in.
      *
-     * Not cached: those are grids of a relation the owning screen already refreshes, and
-     * they have no list identity of their own to cache under.
+     * A grid of a relation has no list identity of its own, but it is still read from the
+     * database rather than handed straight from the network: a cast that renders online and
+     * blanks offline would be the one screen in the app that does not work from cache.
      */
-    suspend fun getCharactersByIds(ids: List<Int>): Resource<List<CharacterModel>>
+    fun observeCharactersByIds(ids: List<Int>): Flow<List<CharacterModel>>
+
+    /** Fetches [ids] in one batch call (spec X5) and writes them to the cache. */
+    suspend fun refreshCharacters(ids: List<Int>): Resource<Unit>
 }

@@ -68,10 +68,10 @@ feature/<name>/
 
 | ID | Feature | Screen | Endpoint | Notes | Phase | Done |
 |---|---|---|---|---|---|---|
-| E1 | Episode list, grouped by season | S4 | `GET /episode?page={n}` | 51 episodes / 3 pages. Season derived from the `S01E01` code. | 6 | [ ] |
-| E2 | Episode detail | S5 | `GET /episode/{id}` | Name, air date, code. | 6 | [ ] |
-| E3 | Search by name or episode code | S4 | `GET /episode/?name={q}` · `?episode=S01E01` | Same query-keyed caching as C2. | 6 | [ ] |
-| E4 | Featured cast grid | S5 | `characters[]` → `GET /character/{ids}` | Reuses the character card and the batch helper (X5). Taps open S3. | 6 | [ ] |
+| E1 | Episode list, grouped by season | S4 | `GET /episode?page={n}` | 51 episodes / 3 pages. Season derived from the `S01E01` code. | 6 | [x] |
+| E2 | Episode detail | S5 | `GET /episode/{id}` | Name, air date, code. | 6 | [x] |
+| E3 | Search by name or episode code | S4 | `GET /episode/?name={q}` · `?episode=S01E01` | Same query-keyed caching as C2. | 6 | [x] |
+| E4 | Featured cast grid | S5 | `characters[]` → `GET /character/{ids}` | Reuses the character card and the batch helper (X5). Taps open S3. | 6 | [x] |
 
 > The Episode **data layer** (entity, DAO, api, mapper, `GetEpisodesByIdsUseCase`) lands
 > early in Phase 4 because C4 needs it; Phase 6 adds the paging and the screens on top.
@@ -120,7 +120,7 @@ onto the active tab's back stack.
 | 3 | C2 — search & filter | [x] |
 | 4 | C3, C4 — character detail + episode data layer (X5) | [x] |
 | 5 | X3 — favorites | [x] |
-| 6 | E1–E4 — episodes | [ ] |
+| 6 | E1–E4 — episodes | [x] |
 | 7 | L1–L4 — locations | [ ] |
 
 Per-phase gate: `./gradlew :app:assembleDebug` and `:app:testDebugUnitTest` pass, plus a

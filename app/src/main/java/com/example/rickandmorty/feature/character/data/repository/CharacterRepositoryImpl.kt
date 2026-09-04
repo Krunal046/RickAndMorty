@@ -21,6 +21,7 @@ import com.example.rickandmorty.feature.character.domain.model.CharacterModel
 import com.example.rickandmorty.feature.character.domain.model.CharacterQuery
 import com.example.rickandmorty.feature.character.domain.repository.CharacterRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -76,14 +77,34 @@ class CharacterRepositoryImpl @Inject constructor(
         database.withTransaction { cacheDetail(character) }
     }
 
-    override suspend fun getCharactersByIds(ids: List<Int>): Resource<List<CharacterModel>> {
-        // `character/` without ids is the paged list endpoint, so asking for none would
-        // quietly download page one instead of returning nothing.
-        if (ids.isEmpty()) return Resource.Success(emptyList())
+    override fun observeCharactersByIds(ids: List<Int>): Flow<List<CharacterModel>> =
+        if (ids.isEmpty()) {
+            flowOf(emptyList())
+        } else {
+            characterDao.observeByIds(ids).map { rows -> rows.map { it.toDomain() } }
+        }
+
+    /**
+     * The empty case has to short-circuit rather than build a path: `character/` is the
+     * *paged list* endpoint, so asking for no characters would quietly download page one.
+     */
+    override suspend fun refreshCharacters(ids: List<Int>): Resource<Unit> {
+        if (ids.isEmpty()) return Resource.Success(Unit)
 
         return safeApiCall {
-            json.decodeBatch<CharacterDTO>(characterApi.getCharactersByIds(ids.toIdPath()))
-                .map { it.toDomain() }
+            val characters =
+                json.decodeBatch<CharacterDTO>(characterApi.getCharactersByIds(ids.toIdPath()))
+
+            characterDao.upsertAll(
+                characters.map { dto ->
+                    dto.toEntity(
+                        pageQuery = CharacterQuery.BY_ID,
+                        // No list, so no list position; the row stores its own id so that
+                        // re-fetching the same batch writes something byte-identical.
+                        orderInQuery = dto.id
+                    )
+                }
+            )
         }
     }
 

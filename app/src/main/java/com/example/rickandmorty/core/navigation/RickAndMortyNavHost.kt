@@ -9,6 +9,8 @@ import androidx.navigation.toRoute
 import com.example.rickandmorty.core.ui.PlaceholderScreen
 import com.example.rickandmorty.feature.character.presentation.CharacterDetailRoute
 import com.example.rickandmorty.feature.character.presentation.CharacterRoute
+import com.example.rickandmorty.feature.episode.presentation.EpisodeDetailRoute
+import com.example.rickandmorty.feature.episode.presentation.EpisodeRoute
 import com.example.rickandmorty.feature.favorite.presentation.FavoritesRoute
 
 /**
@@ -25,6 +27,7 @@ fun RickAndMortyNavHost(
     modifier: Modifier = Modifier
 ) {
     val toCharacterDetail: (Int) -> Unit = { navController.navigate(Route.CharacterDetail(it)) }
+    val toEpisodeDetail: (Int) -> Unit = { navController.navigate(Route.EpisodeDetail(it)) }
 
     NavHost(
         navController = navController,
@@ -41,19 +44,23 @@ fun RickAndMortyNavHost(
         composable<Route.CharacterDetail> {
             CharacterDetailRoute(
                 onBackClick = { navController.navigateUp() },
-                onEpisodeClick = { navController.navigate(Route.EpisodeDetail(it)) },
+                onEpisodeClick = toEpisodeDetail,
                 onLocationClick = { navController.navigate(Route.LocationDetail(it)) }
             )
         }
 
         // ---- Episodes tab ---------------------------------------------------------
         composable<Route.Episodes> {
-            PlaceholderScreen(title = "Episodes")
+            EpisodeRoute(onEpisodeClick = toEpisodeDetail)
         }
 
-        composable<Route.EpisodeDetail> { entry ->
-            val episodeId = entry.toRoute<Route.EpisodeDetail>().episodeId
-            PlaceholderScreen(title = "Episode #$episodeId")
+        // Reached from the tab and from a character's episode chips, so the cast it shows
+        // pushes character details onto whichever tab the user arrived on.
+        composable<Route.EpisodeDetail> {
+            EpisodeDetailRoute(
+                onBackClick = { navController.navigateUp() },
+                onCharacterClick = toCharacterDetail
+            )
         }
 
         // ---- Locations tab --------------------------------------------------------
