@@ -47,4 +47,11 @@ interface CharacterDao {
      */
     @Query("SELECT * FROM characters WHERE id = :id")
     suspend fun rowsForId(id: Int): List<CharacterEntity>
+
+    /**
+     * Drops one character's row from one query, leaving its copies under every other query
+     * alone. Un-favoriting uses it to release the pinned copy without touching the lists.
+     */
+    @Query("DELETE FROM characters WHERE id = :id AND pageQuery = :pageQuery")
+    suspend fun clearRow(id: Int, pageQuery: String)
 }

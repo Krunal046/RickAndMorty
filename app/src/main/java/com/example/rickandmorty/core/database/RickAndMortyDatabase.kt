@@ -8,6 +8,8 @@ import com.example.rickandmorty.feature.character.data.local.dao.CharacterDao
 import com.example.rickandmorty.feature.character.data.local.entity.CharacterEntity
 import com.example.rickandmorty.feature.episode.data.local.dao.EpisodeDao
 import com.example.rickandmorty.feature.episode.data.local.entity.EpisodeEntity
+import com.example.rickandmorty.feature.favorite.data.local.dao.FavoriteDao
+import com.example.rickandmorty.feature.favorite.data.local.entity.FavoriteCharacterEntity
 
 /**
  * The app's single source of truth. Screens read from here and only from here; the network
@@ -21,14 +23,18 @@ import com.example.rickandmorty.feature.episode.data.local.entity.EpisodeEntity
     entities = [
         RemoteKeyEntity::class,
         CharacterEntity::class,
-        EpisodeEntity::class
+        EpisodeEntity::class,
+        FavoriteCharacterEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         // v3 only adds the `episodes` table, which Room can generate on its own.
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        // v4 adds `character_favorites`. This one carries user data, so the auto-migration
+        // is not a convenience - dropping and recreating would lose what the user saved.
+        AutoMigration(from = 3, to = 4)
     ]
 )
 @TypeConverters(Converters::class)
@@ -39,6 +45,8 @@ abstract class RickAndMortyDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
 
     abstract fun episodeDao(): EpisodeDao
+
+    abstract fun favoriteDao(): FavoriteDao
 
     companion object {
         const val NAME = "rick_and_morty.db"

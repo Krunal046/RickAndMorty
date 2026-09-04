@@ -10,6 +10,8 @@ import com.example.rickandmorty.feature.character.domain.usecase.ObserveCharacte
 import com.example.rickandmorty.feature.character.domain.usecase.RefreshCharacterUseCase
 import com.example.rickandmorty.feature.episode.domain.usecase.GetEpisodesByIdsUseCase
 import com.example.rickandmorty.feature.episode.domain.usecase.RefreshEpisodesUseCase
+import com.example.rickandmorty.feature.favorite.domain.usecase.ObserveIsFavoriteUseCase
+import com.example.rickandmorty.feature.favorite.domain.usecase.ToggleFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -41,8 +43,10 @@ class CharacterDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     observeCharacter: ObserveCharacterUseCase,
     getEpisodesByIds: GetEpisodesByIdsUseCase,
+    observeIsFavorite: ObserveIsFavoriteUseCase,
     private val refreshCharacter: RefreshCharacterUseCase,
-    private val refreshEpisodes: RefreshEpisodesUseCase
+    private val refreshEpisodes: RefreshEpisodesUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase
 ) : ViewModel() {
 
     /** Read back off the type-safe route, so there is no argument key to keep in sync. */
@@ -76,6 +80,11 @@ class CharacterDetailViewModel @Inject constructor(
             episodeIds.collectLatest { ids -> refreshEpisodesFor(ids) }
         }
 
+        // Favorites are local, so this is the whole story - there is nothing to refresh.
+        observeIsFavorite(characterId)
+            .onEach { isFavorite -> _uiState.update { it.copy(isFavorite = isFavorite) } }
+            .launchIn(viewModelScope)
+
         // Spec's refresh policy: always refresh on screen open.
         refresh()
     }
@@ -86,6 +95,11 @@ class CharacterDetailViewModel @Inject constructor(
 
             CharacterDetailUiEvent.BackClicked ->
                 _effects.trySend(CharacterDetailUiEffect.NavigateBack)
+
+            // No optimistic flip: the heart follows the favorites table, which is the same
+            // flow every other reader of this fact sees.
+            CharacterDetailUiEvent.FavoriteToggled ->
+                viewModelScope.launch { toggleFavorite(characterId) }
 
             is CharacterDetailUiEvent.EpisodeClicked ->
                 _effects.trySend(CharacterDetailUiEffect.NavigateToEpisode(event.episodeId))

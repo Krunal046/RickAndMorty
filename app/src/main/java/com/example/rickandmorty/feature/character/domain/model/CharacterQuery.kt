@@ -56,5 +56,16 @@ data class CharacterQuery(
          * trims old searches cannot reach it.
          */
         const val DETAIL = "$RESOURCE:detail"
+
+        /**
+         * The copy of a character pinned when it is favorited (spec X3).
+         *
+         * Every other row in the table is cache: a list refresh clears its own query's rows
+         * before writing the new page, and the eviction that trims old searches drops theirs
+         * outright. Either would take a favorited character's only row with it, and the
+         * favorite would vanish from the tab it was saved to. Like [DETAIL] this key is
+         * never written to `remote_keys`, so neither can reach it.
+         */
+        const val FAVORITE = "$RESOURCE:favorite"
     }
 }

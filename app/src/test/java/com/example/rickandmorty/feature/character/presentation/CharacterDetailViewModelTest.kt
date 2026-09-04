@@ -17,6 +17,9 @@ import com.example.rickandmorty.feature.episode.domain.model.EpisodeModel
 import com.example.rickandmorty.feature.episode.domain.repository.EpisodeRepository
 import com.example.rickandmorty.feature.episode.domain.usecase.GetEpisodesByIdsUseCase
 import com.example.rickandmorty.feature.episode.domain.usecase.RefreshEpisodesUseCase
+import com.example.rickandmorty.feature.favorite.domain.repository.FavoriteRepository
+import com.example.rickandmorty.feature.favorite.domain.usecase.ObserveIsFavoriteUseCase
+import com.example.rickandmorty.feature.favorite.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -74,15 +77,31 @@ class CharacterDetailViewModelTest {
         }
     }
 
+    private class FakeFavoriteRepository : FavoriteRepository {
+        val saved = MutableStateFlow(false)
+        val toggled = mutableListOf<Int>()
+
+        override fun observeFavorites() = error("not used")
+
+        override fun observeIsFavorite(characterId: Int): Flow<Boolean> = saved
+
+        override suspend fun toggleFavorite(characterId: Int) {
+            toggled += characterId
+            saved.value = !saved.value
+        }
+    }
+
     private val dispatcher = StandardTestDispatcher()
     private lateinit var characters: FakeCharacterRepository
     private lateinit var episodes: FakeEpisodeRepository
+    private lateinit var favorites: FakeFavoriteRepository
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         characters = FakeCharacterRepository()
         episodes = FakeEpisodeRepository()
+        favorites = FakeFavoriteRepository()
     }
 
     @After
@@ -92,8 +111,10 @@ class CharacterDetailViewModelTest {
         savedStateHandle = SavedStateHandle(mapOf("characterId" to characterId)),
         observeCharacter = ObserveCharacterUseCase(characters),
         getEpisodesByIds = GetEpisodesByIdsUseCase(episodes),
+        observeIsFavorite = ObserveIsFavoriteUseCase(favorites),
         refreshCharacter = RefreshCharacterUseCase(characters),
-        refreshEpisodes = RefreshEpisodesUseCase(episodes)
+        refreshEpisodes = RefreshEpisodesUseCase(episodes),
+        toggleFavorite = ToggleFavoriteUseCase(favorites)
     )
 
     @Test
@@ -213,6 +234,36 @@ class CharacterDetailViewModelTest {
 
             assertEquals(CharacterDetailUiEffect.NavigateToLocation(3), awaitItem())
         }
+    }
+
+    /** Spec X3: the heart reflects the favorites table, not a flag the screen keeps. */
+    @Test
+    fun `the heart follows the saved state rather than the tap`() = runTest(dispatcher) {
+        characters.cached.value = rick
+        val viewModel = viewModel()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isFavorite)
+
+        viewModel.onEvent(CharacterDetailUiEvent.FavoriteToggled)
+        advanceUntilIdle()
+
+        assertEquals(listOf(CHARACTER_ID), favorites.toggled)
+        assertTrue(viewModel.uiState.value.isFavorite)
+    }
+
+    @Test
+    fun `tapping the heart again removes the favorite`() = runTest(dispatcher) {
+        characters.cached.value = rick
+        val viewModel = viewModel()
+        advanceUntilIdle()
+
+        viewModel.onEvent(CharacterDetailUiEvent.FavoriteToggled)
+        advanceUntilIdle()
+        viewModel.onEvent(CharacterDetailUiEvent.FavoriteToggled)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isFavorite)
     }
 
     private companion object {

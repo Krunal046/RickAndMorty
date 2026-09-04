@@ -21,6 +21,8 @@ data class CharacterDetailUiState(
     val character: CharacterModel? = null,
     val episodes: List<EpisodeModel> = emptyList(),
     val isRefreshing: Boolean = false,
+    /** Spec X3. Read from the favorites table, not from anything the network said. */
+    val isFavorite: Boolean = false,
     val error: DataError? = null,
     val episodesError: DataError? = null
 ) {

@@ -16,6 +16,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -76,6 +78,32 @@ fun CharacterDetailScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.action_back)
                         )
+                    }
+                },
+                actions = {
+                    // Spec X3. Hidden until a character is on screen: there is nothing to
+                    // save while the cache is still empty, and a heart over a spinner
+                    // invites a tap that would do nothing.
+                    if (uiState.character != null) {
+                        IconButton(
+                            onClick = { onEvent(CharacterDetailUiEvent.FavoriteToggled) }
+                        ) {
+                            Icon(
+                                imageVector = if (uiState.isFavorite) {
+                                    Icons.Filled.Favorite
+                                } else {
+                                    Icons.Filled.FavoriteBorder
+                                },
+                                contentDescription = stringResource(
+                                    if (uiState.isFavorite) {
+                                        R.string.action_unfavorite
+                                    } else {
+                                        R.string.action_favorite
+                                    }
+                                ),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             )

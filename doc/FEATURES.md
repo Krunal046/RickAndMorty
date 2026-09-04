@@ -47,7 +47,7 @@ feature/<name>/
 |---|---|---|---|---|
 | X1 | Room as single source of truth | `RickAndMortyDatabase`, one entity + DAO per resource, `Converters` for `List<Int>` | 1–2 | [x] |
 | X2 | Offline caching of paged lists | `RemoteMediator` + shared query-keyed `remote_keys` table | 1–2 | [x] |
-| X3 | Favorites — bookmark characters | Separate `character_favorites` table, joined against cached characters | 5 | [ ] |
+| X3 | Favorites — bookmark characters | Separate `character_favorites` table, joined against cached characters | 5 | [x] |
 | X4 | Pull-to-refresh on any list | `PullToRefreshBox` → `LazyPagingItems.refresh()` | 2 | [x] |
 | X5 | Batch fetch of related items | `GET /character/{1,2,3}` and `/episode/{ids}` — **a single id returns an object, several return an array**; one shared helper handles both | 4 | [x] |
 | X6 | Loading / empty / error states | Shared `PagedContent` composable in `core/ui` encodes the decision table once | 1–2 | [x] |
@@ -89,7 +89,7 @@ feature/<name>/
 
 | ID | Feature | Screen | Source | Notes | Phase | Done |
 |---|---|---|---|---|---|---|
-| X3 | Locally saved characters | S8 | Room only | No network path at all — works offline by construction. A refresh must **not** evict a favorited character row, or the favorite vanishes from this tab. | 5 | [ ] |
+| X3 | Locally saved characters | S8 | Room only | No network path at all — works offline by construction. A refresh must **not** evict a favorited character row, or the favorite vanishes from this tab. | 5 | [x] |
 
 ---
 
@@ -119,7 +119,7 @@ onto the active tab's back stack.
 | 2 | C1 — character list, offline-first (X1, X2, X4, X6) | [x] |
 | 3 | C2 — search & filter | [x] |
 | 4 | C3, C4 — character detail + episode data layer (X5) | [x] |
-| 5 | X3 — favorites | [ ] |
+| 5 | X3 — favorites | [x] |
 | 6 | E1–E4 — episodes | [ ] |
 | 7 | L1–L4 — locations | [ ] |
 

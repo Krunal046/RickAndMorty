@@ -12,6 +12,9 @@ sealed interface CharacterDetailUiEvent {
 
     data object BackClicked : CharacterDetailUiEvent
 
+    /** Saves the character, or removes it if it is already saved (spec X3). */
+    data object FavoriteToggled : CharacterDetailUiEvent
+
     data class EpisodeClicked(val episodeId: Int) : CharacterDetailUiEvent
 
     /** Origin or last known location; both open the same screen (spec S7). */

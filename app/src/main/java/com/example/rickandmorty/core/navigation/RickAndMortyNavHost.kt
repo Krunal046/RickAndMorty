@@ -9,6 +9,7 @@ import androidx.navigation.toRoute
 import com.example.rickandmorty.core.ui.PlaceholderScreen
 import com.example.rickandmorty.feature.character.presentation.CharacterDetailRoute
 import com.example.rickandmorty.feature.character.presentation.CharacterRoute
+import com.example.rickandmorty.feature.favorite.presentation.FavoritesRoute
 
 /**
  * The whole graph in one place. Screens receive plain navigation lambdas rather than the
@@ -67,7 +68,7 @@ fun RickAndMortyNavHost(
 
         // ---- Favorites tab --------------------------------------------------------
         composable<Route.Favorites> {
-            PlaceholderScreen(title = "Favorites")
+            FavoritesRoute(onCharacterClick = toCharacterDetail)
         }
     }
 }
