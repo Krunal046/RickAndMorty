@@ -5,21 +5,20 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
-import com.example.rickandmorty.core.ui.PlaceholderScreen
 import com.example.rickandmorty.feature.character.presentation.CharacterDetailRoute
 import com.example.rickandmorty.feature.character.presentation.CharacterRoute
 import com.example.rickandmorty.feature.episode.presentation.EpisodeDetailRoute
 import com.example.rickandmorty.feature.episode.presentation.EpisodeRoute
 import com.example.rickandmorty.feature.favorite.presentation.FavoritesRoute
+import com.example.rickandmorty.feature.location.presentation.LocationDetailRoute
+import com.example.rickandmorty.feature.location.presentation.LocationRoute
 
 /**
  * The whole graph in one place. Screens receive plain navigation lambdas rather than the
  * [NavHostController] itself, so no feature depends on navigation and each screen stays
  * previewable and testable on its own.
  *
- * Destinations still rendering a [PlaceholderScreen] are implemented by a later phase; see
- * `doc/FEATURES.md`.
+ * Every destination in [Route] is implemented as of Phase 7; see `doc/FEATURES.md`.
  */
 @Composable
 fun RickAndMortyNavHost(
@@ -28,6 +27,7 @@ fun RickAndMortyNavHost(
 ) {
     val toCharacterDetail: (Int) -> Unit = { navController.navigate(Route.CharacterDetail(it)) }
     val toEpisodeDetail: (Int) -> Unit = { navController.navigate(Route.EpisodeDetail(it)) }
+    val toLocationDetail: (Int) -> Unit = { navController.navigate(Route.LocationDetail(it)) }
 
     NavHost(
         navController = navController,
@@ -45,7 +45,7 @@ fun RickAndMortyNavHost(
             CharacterDetailRoute(
                 onBackClick = { navController.navigateUp() },
                 onEpisodeClick = toEpisodeDetail,
-                onLocationClick = { navController.navigate(Route.LocationDetail(it)) }
+                onLocationClick = toLocationDetail
             )
         }
 
@@ -65,12 +65,16 @@ fun RickAndMortyNavHost(
 
         // ---- Locations tab --------------------------------------------------------
         composable<Route.Locations> {
-            PlaceholderScreen(title = "Locations")
+            LocationRoute(onLocationClick = toLocationDetail)
         }
 
-        composable<Route.LocationDetail> { entry ->
-            val locationId = entry.toRoute<Route.LocationDetail>().locationId
-            PlaceholderScreen(title = "Location #$locationId")
+        // Also where a character's origin and last-location links land (spec C3), which is
+        // why they stop being dead rows in this phase.
+        composable<Route.LocationDetail> {
+            LocationDetailRoute(
+                onBackClick = { navController.navigateUp() },
+                onCharacterClick = toCharacterDetail
+            )
         }
 
         // ---- Favorites tab --------------------------------------------------------

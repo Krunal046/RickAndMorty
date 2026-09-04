@@ -43,6 +43,17 @@
     <string name="episode_detail_cast">Cast (%1$d)</string>
     <string name="episode_detail_cast_empty">No characters listed for this episode.</string>
 
+    <string name="locations_empty">No locations to show yet.</string>
+    <string name="locations_empty_search">No locations match your search.</string>
+    <string name="locations_search_hint">Search locations</string>
+    <string name="filter_type">Type</string>
+    <string name="filter_dimension">Dimension</string>
+
+    <string name="location_detail_title">Location</string>
+    <string name="location_detail_dimension">Dimension</string>
+    <string name="location_detail_residents">Residents (%1$d)</string>
+    <string name="location_detail_residents_empty">Nobody is listed as living here.</string>
+
     <string name="favorites_empty">No favorites yet. Tap the heart on a character to keep it here.</string>
 
     <string name="tab_characters">Characters</string>
@@ -50,5 +61,4 @@
     <string name="tab_locations">Locations</string>
     <string name="tab_favorites">Favorites</string>
 
-    <string name="screen_not_implemented">%1$s is not built yet.</string>
 </resources>

@@ -80,10 +80,10 @@ feature/<name>/
 
 | ID | Feature | Screen | Endpoint | Notes | Phase | Done |
 |---|---|---|---|---|---|---|
-| L1 | Location list | S6 | `GET /location?page={n}` | 126 locations / 7 pages. | 7 | [ ] |
-| L2 | Location detail | S7 | `GET /location/{id}` | Type, dimension. | 7 | [ ] |
-| L3 | Filter by name / type / dimension | S6 | `GET /location/?type=Planet&name=earth` | Same query-keyed caching as C2. | 7 | [ ] |
-| L4 | Residents grid | S7 | `residents[]` → `GET /character/{ids}` | Taps open S3. Enables the origin / last-location links from C3. | 7 | [ ] |
+| L1 | Location list | S6 | `GET /location?page={n}` | 126 locations / 7 pages. | 7 | [x] |
+| L2 | Location detail | S7 | `GET /location/{id}` | Type, dimension. | 7 | [x] |
+| L3 | Filter by name / type / dimension | S6 | `GET /location/?type=Planet&name=earth` | Same query-keyed caching as C2. | 7 | [x] |
+| L4 | Residents grid | S7 | `residents[]` → `GET /character/{ids}` | Taps open S3. Enables the origin / last-location links from C3. | 7 | [x] |
 
 ## Favorites (`X3`)
 
@@ -121,7 +121,7 @@ onto the active tab's back stack.
 | 4 | C3, C4 — character detail + episode data layer (X5) | [x] |
 | 5 | X3 — favorites | [x] |
 | 6 | E1–E4 — episodes | [x] |
-| 7 | L1–L4 — locations | [ ] |
+| 7 | L1–L4 — locations | [x] |
 
 Per-phase gate: `./gradlew :app:assembleDebug` and `:app:testDebugUnitTest` pass, plus a
 manual offline check — load online, kill the app, enable airplane mode, relaunch, and
