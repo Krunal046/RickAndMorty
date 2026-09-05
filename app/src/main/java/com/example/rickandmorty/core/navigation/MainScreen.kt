@@ -1,5 +1,6 @@
 package com.example.rickandmorty.core.navigation
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -51,7 +52,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         RickAndMortyNavHost(
             navController = navController,
-            modifier = Modifier.padding(innerPadding)
+            // `padding` positions the content below the status bar and above the bottom
+            // bar; `consumeWindowInsets` marks those insets handled so the per-screen
+            // Scaffolds and their TopAppBars do not pad for the status bar a second time.
+            modifier = Modifier
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
         )
     }
 }
